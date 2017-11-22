@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Input, Tabs, Table } from 'antd';
+import { Input, Tabs, Table, Row, Col, Icon, Modal } from 'antd';
 import logo from './logo.png';
 import './App.css';
 import axios from 'axios'
@@ -8,17 +8,17 @@ const Search = Input.Search;
 const TabPane = Tabs.TabPane;
 
 const columns = [{
-  title: 'First Name',
+  title: 'รหัสสัมภาษณ์',
+  dataIndex: 'interviewRef',
+  key: 'interviewRef',
+}, {
+  title: 'ชื่อจริง',
   dataIndex: 'firstName',
   key: 'firstName',
 }, {
-  title: 'Last Name',
+  title: 'นามสกุล',
   dataIndex: 'lastName',
   key: 'lastName',
-}, {
-  title: 'ID',
-  dataIndex: 'interviewRef',
-  key: 'interviewRef',
 }];
 
 class App extends Component {
@@ -27,37 +27,68 @@ class App extends Component {
     this.state = {
       searchInput: '',
       candidateList: [],
-      filteredList: []
+      filteredList: [],
+      successVisible: false,
+      failureVisible: false
     }
   }
 
   async componentWillMount() {
     const res = await axios('https://ywc15.ywc.in.th/api/interview')
-    this.setState({ candidateList: res.data })
+    this.setState({ candidateList: _.sortBy(res.data, ['interviewRef']) })
     console.log(this.state.candidateList)
+  }
+
+  hideModal = () => {
+    this.setState({
+      successVisible: false,
+      failureVisible: false
+    });
   }
 
   onSubmit = (term) => {
     const words = _.split(term, ' ')
-    if(words.length < 2) {
-      const filteredList = _.filter(this.state.candidateList, candidate => {
+    let filteredList = []
+    if (words.length < 2) {
+      filteredList = _.filter(this.state.candidateList, candidate => {
         return (_.includes(candidate.firstName, words[0]) || _.includes(candidate.lastName, words[0]))
       })
       this.setState({ filteredList })
-      console.log(filteredList)
     } else {
-      const filteredList = _.filter(this.state.candidateList, candidate => {
+      filteredList = _.filter(this.state.candidateList, candidate => {
         return (_.includes(candidate.firstName, words[0]) && _.includes(candidate.lastName, words[1]))
       })
       this.setState({ filteredList })
-      console.log(filteredList)
     }
+    if (filteredList.length === 0) {
+      this.setState({ failureVisible: true })
+    } else {
+      this.setState({ successVisible: true })
+    }
+  }
+
+  renderSearchResult(){
+    return(
+      <Table columns={columns} dataSource={this.state.filteredList} style={{ margin: 20, padding: 20 }} />
+    )
   }
 
   renderGroup(major){
     const filteredList = _.filter(this.state.candidateList, { major })
+    const breakPoint = major === 'content' ? 25 : major === 'design' ? 20 : major === 'marketing' ? 18 : 23
+    const firstHalfList = _.take(filteredList, breakPoint)
+    const secondHalfList = _.drop(filteredList, breakPoint)
     return(
-      <Table columns={columns} dataSource={filteredList}/>
+      <Row>
+        <Col span={12}>
+          <h1>สัมภาษณ์รอบเช้า 9.00-12.00</h1>
+          <Table columns={columns} dataSource={firstHalfList} style={{ margin: 20, padding: 20 }}/>
+        </Col>
+        <Col span={12}>
+          <h1>สัมภาษณ์รอบบ่าย 13.00-18.00</h1>
+          <Table columns={columns} dataSource={secondHalfList} style={{ margin: 20, padding: 20 }}/>
+        </Col>
+      </Row>
     )
   }
 
@@ -65,20 +96,36 @@ class App extends Component {
     return (
       <div className="App">
         <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">ประกาศผลผู้มีสิทธิ์สัมภาษณ์</h1>
+          <div className="App-corner">
+            <img src={logo} className="App-logo" alt="logo"/>
+          </div>
+          <h1 className="Camp-name">YWC-15th</h1>
+          <h1 className="App-title">อยากรู้ว่าตัวเองติดไหม ใส่ชื่อเลยยยย</h1>
+          <Search
+            placeholder="ค้นหารายชื่อ"
+            style={{ width: 300, marginTop: 30, height: 40 }}
+            onSearch={this.onSubmit}
+            size='large'
+          />
         </header>
-        <Search
-          placeholder="ค้นหารายชื่อ"
-          style={{ width: 300 }}
-          onSearch={this.onSubmit}
-        />
+        <Modal
+          title="Modal"
+          visible={this.state.successVisible}
+          onOk={this.hideModal}
+          onCancel={this.hideModal}
+          okText="close"
+          closable={false}
+          width={700}
+        >
+          {this.renderSearchResult()}
+        </Modal>
         <Tabs defaultActiveKey="1">
-          <TabPane tab="Design" key="1">{this.renderGroup('design')}</TabPane>
-          <TabPane tab="Content" key="2">{this.renderGroup('content')}</TabPane>
-          <TabPane tab="Marketing" key="3">{this.renderGroup('marketing')}</TabPane>
-          <TabPane tab="Programming" key="4">{this.renderGroup('programming')}</TabPane>
+          <TabPane tab={<span><Icon type="file-text" />Content</span>} key="1">{this.renderGroup('content')}</TabPane>
+          <TabPane tab={<span><Icon type="edit" />Design</span>} key="2">{this.renderGroup('design')}</TabPane>
+          <TabPane tab={<span><Icon type="area-chart" />Marketing</span>} key="3">{this.renderGroup('marketing')}</TabPane>
+          <TabPane tab={<span><Icon type="desktop" />Programming</span>} key="4">{this.renderGroup('programming')}</TabPane>
         </Tabs>
+
       </div>
     );
   }

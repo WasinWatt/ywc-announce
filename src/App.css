@@ -1,17 +1,36 @@
 @import '~antd/dist/antd.css';
+@import url('https://fonts.googleapis.com/css?family=Kanit|Permanent+Marker');
 
 .App {
   text-align: center;
+  font-family: 'Kanit', sans-serif;
 }
 
 .App-logo {
-  height: 80px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  height: 44px;
+  width: 120px;
+}
+
+.Camp-name {
+  font-family: 'Permanent Marker', cursive;
+  color: orange;
+  font-size: 150px;
+}
+
+.Camp-number {
+  padding: 0px;
+  font-family: 'Permanent Marker', cursive;
+  color: orange;
+  font-size: 50px;
 }
 
 .App-header {
   background-color: #222;
-  height: 150px;
+  height: 500px;
   padding: 20px;
+  font-size: 20px;
 }
 
 .App-title {
@@ -21,9 +40,5 @@
 
 .App-intro {
   font-size: large;
-}
-
-.search-form {
-  max-width: 300px;
 }
 
