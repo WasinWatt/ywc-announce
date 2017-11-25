@@ -27,10 +27,12 @@
 }
 
 .App-header {
-  background-color: #222;
+  background-image: url('./assets/header-banner.png');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
   height: 500px;
-  padding: 20px;
-  font-size: 20px;
+  padding: 15px;
+  font-size: 23px;
 }
 
 .App-title {
