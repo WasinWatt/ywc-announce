@@ -35,6 +35,10 @@
   font-size: 23px;
 }
 
+.App-info b {
+  color: orange;
+}
+
 .App-title {
   font-size: 1.5em;
   color: white;
