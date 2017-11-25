@@ -171,7 +171,7 @@ class App extends Component {
         <div className="App-all-candidates">
           <Element name="allCandidates" />
           <h1 style={{ marginBottom: 10 }}><b> รายชื่อผู้ติดสัมภาษณ์ทั้งหมด </b></h1>
-          <Tabs defaultActiveKey="1">
+          <Tabs defaultActiveKey="1" style={{fontSize: 20}}>
             <TabPane tab={<span><Icon type="file-text" />Content</span>} key="1">{this.renderGroup('content')}</TabPane>
             <TabPane tab={<span><Icon type="edit" />Design</span>} key="2">{this.renderGroup('design')}</TabPane>
             <TabPane tab={<span><Icon type="area-chart" />Marketing</span>} key="3">{this.renderGroup('marketing')}</TabPane>
