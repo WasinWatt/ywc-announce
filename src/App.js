@@ -26,7 +26,6 @@ class App extends Component {
   async componentWillMount() {
     const res = await axios('https://ywc15.ywc.in.th/api/interview')
     this.setState({ candidateList: _.sortBy(res.data, ['interviewRef']) })
-    console.log(this.state.candidateList)
   }
 
   hideModal = () => {
@@ -49,7 +48,6 @@ class App extends Component {
       })
     }
     if (filteredList.length === 0) {
-      console.log('FUCK')
       Modal.error({
         title: (
           <h2>Sorry :( ไม่มีชื่ออ่ะครับ</h2>
@@ -60,8 +58,9 @@ class App extends Component {
         )
       })
     } else {
-      filteredList = _.map(filteredList, (candidate, index) => {
+      filteredList = _.map(filteredList, candidate => {
         let time = 'บ่าย'
+        const index = parseInt(candidate.interviewRef[2] + candidate.interviewRef[3])
         if (index <= breakPoints[candidate.major]) {
           time = 'เช้า'
         }
@@ -84,7 +83,6 @@ class App extends Component {
 
   renderGroup(major){
     const filteredList = _.filter(this.state.candidateList, { major })
-    console.log(breakPoints)
     const firstHalfList = _.take(filteredList, breakPoints[major])
     const secondHalfList = _.drop(filteredList, breakPoints[major])
     return(
