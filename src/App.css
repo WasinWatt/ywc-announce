@@ -39,6 +39,10 @@
   color: orange;
 }
 
+.App-all-candidates b {
+  color: orange;
+}
+
 .App-title {
   font-size: 1.5em;
   color: white;

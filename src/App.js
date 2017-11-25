@@ -5,7 +5,9 @@ import _ from 'lodash'
 import Scroll from 'react-scroll'
 import { Input, Tabs, Table, Row, Col, Icon, Modal, Button } from 'antd'
 import logo from './assets/logo.png'
+import Information from './Components/Information'
 import './App.css'
+import { tableColumns, specialTableColumns, breakPoints } from './constants'
 
 const Element = Scroll.Element
 const scroller = Scroll.scroller
@@ -13,26 +15,11 @@ const scroller = Scroll.scroller
 const Search = Input.Search
 const TabPane = Tabs.TabPane
 
-const columns = [{
-  title: 'รหัสสัมภาษณ์',
-  dataIndex: 'interviewRef',
-  key: 'interviewRef',
-}, {
-  title: 'ชื่อจริง',
-  dataIndex: 'firstName',
-  key: 'firstName',
-}, {
-  title: 'นามสกุล',
-  dataIndex: 'lastName',
-  key: 'lastName',
-}];
-
 class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      candidateList: [],
-      filteredList: []
+      candidateList: []
     }
   }
 
@@ -56,27 +43,33 @@ class App extends Component {
       filteredList = _.filter(this.state.candidateList, candidate => {
         return (_.includes(candidate.firstName, words[0]) || _.includes(candidate.lastName, words[0]))
       })
-      this.setState({ filteredList })
     } else {
       filteredList = _.filter(this.state.candidateList, candidate => {
         return (_.includes(candidate.firstName, words[0]) && _.includes(candidate.lastName, words[1]))
       })
-      this.setState({ filteredList })
     }
     if (filteredList.length === 0) {
       console.log('FUCK')
       Modal.error({
         title: 'Sorry :( ไม่มีชื่ออ่ะครับ',
         okText: 'close',
-        content: 'ปีหน้ามาสมัครใหม่น้าา'
+        content: 'พิมชื่อผิดรึป่าวว :)'
       })
     } else {
+      filteredList = _.map(filteredList, (candidate, index) => {
+        let time = 'บ่าย'
+        if (index <= breakPoints[candidate.major]) {
+          time = 'เช้า'
+        }
+        return Object.assign({}, candidate, { time })
+      })
       Modal.success({
         title: 'Congratulation! ติดสัมภาษณ์แล้วจ้าา',
         okText: 'close',
+        width: 600,
         content: (
-          <div>
-            <Table columns={columns} dataSource={filteredList} />
+          <div style={{paddingTop: 10, marginRight: 25}}>
+            <Table columns={specialTableColumns} dataSource={filteredList} />
           </div>
         )
       })
@@ -85,18 +78,18 @@ class App extends Component {
 
   renderGroup(major){
     const filteredList = _.filter(this.state.candidateList, { major })
-    const breakPoint = major === 'content' ? 25 : major === 'design' ? 20 : major === 'marketing' ? 18 : 23
-    const firstHalfList = _.take(filteredList, breakPoint)
-    const secondHalfList = _.drop(filteredList, breakPoint)
+    console.log(breakPoints)
+    const firstHalfList = _.take(filteredList, breakPoints[major])
+    const secondHalfList = _.drop(filteredList, breakPoints[major])
     return(
       <Row>
         <Col span={12}>
-          <h1>สัมภาษณ์รอบเช้า 9.00-12.00</h1>
-          <Table columns={columns} dataSource={firstHalfList} style={{ margin: 20, padding: 20 }}/>
+          <h1 style={{ fontSize: 25 }}><b>สัมภาษณ์รอบเช้า 9.00 น. - 12.00 น.</b></h1>
+          <Table columns={tableColumns} dataSource={firstHalfList} style={{ margin: 20, padding: 20 }}/>
         </Col>
         <Col span={12}>
-          <h1>สัมภาษณ์รอบบ่าย 13.00-18.00</h1>
-          <Table columns={columns} dataSource={secondHalfList} style={{ margin: 20, padding: 20 }}/>
+          <h1 style={{ fontSize: 25 }}><b>สัมภาษณ์รอบบ่าย 13.00 น. - 18.00 น.</b></h1>
+          <Table columns={tableColumns} dataSource={secondHalfList} style={{ margin: 20, padding: 20 }}/>
         </Col>
       </Row>
     )
@@ -117,7 +110,7 @@ class App extends Component {
             })}>รายละเอียด</Button>
             </Col>
             <Col span={4}>
-            <img src={logo} className="App-logo" alt="logo"/>
+              <a href="https://ywc15.ywc.in.th"><img src={logo} className="App-logo" alt="logo"/></a>
             </Col>
             <Col span={5}>
             <Button ghost size="large" style={{ margin: 20 }} onClick={() => scroller.scrollTo('allCandidates', {
@@ -129,7 +122,7 @@ class App extends Component {
             </Col>
           </Row>
           <h1 className="Camp-name">YWC-15th</h1>
-          <h1 className="App-title"><b>อยากรู้ว่าตัวเองติดไหม ใส่ชื่อเลยยยย</b></h1>
+          <h1 className="App-title"><b>อยากรู้ว่าตัวเองติดสัมภาษณ์ไหม ใส่ชื่อเลยยย</b></h1>
           <Search
             placeholder="ค้นหารายชื่อ"
             style={{ width: 300, marginTop: 70, height: 40 }}
@@ -137,41 +130,11 @@ class App extends Component {
             size='large'
           />
         </header>
-        <div className="App-info" style={{margin: 50}}>
-          <Element name="information" />
-          <Row>
-            <h1 style={{marginBottom: 10}}><b> รายละเอียดการสัมภาษณ์ </b></h1>
-            <h2>การสัมภาษณ์จะจัดขึ้นใน<b><u>วันที่ 26 พฤศจิกายน 2560 ณ อาคาร ซี.พี.ทาวเวอร์ 1 (สีลม)</u></b><br/>
-            ซึ่งจะแบ่งออกเป็น 2 รอบ คือ <b><u>รอบช่วงเช้าตั้งแต่เวลา 9.00 น. ถึง 12.00 น.</u></b> 
-            และ <b><u>รอบช่วงบ่ายตั้งแต่เวลา 13.00 น. ถึง 18.00 น.</u></b></h2>
-          </Row>
-          
-          <Row style={{ marginTop: 30, textAlign: "left", marginLeft:50, marginRight: 50 }}>
-            <h1 style={{ marginBottom: 10 }}><b> สิ่งที่ต้องเตรียมมาในวันสัมภาษณ์ </b></h1>
-            <h2>1. บัตรประชาชนสำหรับการแลกบัตรเข้าอาคาร ซี.พี.ทาวเวอร์ 1 (สีลม) และ บัตรนักศึกษาสำหรับการลงทะเบียนสัมภาษณ์ กรุณาแต่งกายด้วยชุดนักศึกษา</h2>
-            <h2>2. การบ้านและสิ่งที่กรรมการสาขากำหนดไว้ กรุณาอ่านรายละเอียดการบ้านและสิ่งที่กรรมการให้เตรียมมาให้ครบถ้วน หากสาขาใดต้องใช้โน้ตบุ๊ค ควรชาร์ตแบตเตอรี่และเตรียมอินเทอร์เน็ตส่วนตัวมาให้พร้อม เนื่องจากสถานที่ไม่มีบริการอินเทอร์เน็ตให้ใช้</h2>
-            <h2>3. Portfolio สามารถนำมาประกอบการสัมภาษณ์ได้ สำหรับน้อง ๆ สาขาดีไซน์จะต้องนำ Portfolio มาด้วยทุกคน</h2>
-          </Row>
-
-          <Row style={{ marginTop: 30, textAlign: "left", marginLeft: 50, marginRight: 50 }}>
-            <Col span={18}>
-              <h1 style={{ marginBottom: 10 }}><b> การเดินทางมาสัมภาษณ์ </b></h1>
-              <h2>1. ด้วยรถไฟฟ้า BTS สามารถลงสถานีศาลาแดง ณ ทางออกที่ 2</h2>
-              <h2>2. ด้วยรถไฟฟ้า MRT สามารถลงสถานีสีลม ณ ทางออกที่ 2 โดยเดินเรียบทางเท้าไปตามถนนสีลม</h2>
-              <h2>3. ด้วยรถประจำทาง สามารถขึ้นใช้บริการสาย 15, 77, 155, 504, 177, 76</h2>
-            </Col>
-            <Col span={6}>
-              <h1 style={{ marginBottom: 10 }}><b> สอบถามเพิ่มเติมติดต่อ </b></h1>
-              <h2><b>พี่เบ๊บ:</b> 064-174-7080</h2>
-              <h2><b>พี่ฟง:</b> 092-458-7067</h2>
-              <h2><b>พี่เบนซ์:</b> 085-666-7571</h2>
-            </Col>
-          </Row>
-        </div>
+        <Information />
         <div className="App-all-candidates">
           <Element name="allCandidates" />
-          <h1 style={{ marginBottom: 10 }}><b> รายชื่อผู้ติดสัมภาษณ์ทั้งหมด </b></h1>
-          <Tabs defaultActiveKey="1" style={{fontSize: 20}}>
+          <h1 style={{ marginBottom: 10, fontSize: 30 }}><b> รายชื่อผู้ติดสัมภาษณ์ทั้งหมด </b></h1>
+          <Tabs defaultActiveKey="1" >
             <TabPane tab={<span><Icon type="file-text" />Content</span>} key="1">{this.renderGroup('content')}</TabPane>
             <TabPane tab={<span><Icon type="edit" />Design</span>} key="2">{this.renderGroup('design')}</TabPane>
             <TabPane tab={<span><Icon type="area-chart" />Marketing</span>} key="3">{this.renderGroup('marketing')}</TabPane>
