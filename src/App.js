@@ -51,9 +51,13 @@ class App extends Component {
     if (filteredList.length === 0) {
       console.log('FUCK')
       Modal.error({
-        title: 'Sorry :( ไม่มีชื่ออ่ะครับ',
+        title: (
+          <h2>Sorry :( ไม่มีชื่ออ่ะครับ</h2>
+        ),
         okText: 'close',
-        content: 'พิมชื่อผิดรึป่าวว :)'
+        content: (
+          <h3>พิมชื่อผิดรึป่าวว :)</h3>
+        )
       })
     } else {
       filteredList = _.map(filteredList, (candidate, index) => {
@@ -64,7 +68,9 @@ class App extends Component {
         return Object.assign({}, candidate, { time })
       })
       Modal.success({
-        title: 'Congratulation! ติดสัมภาษณ์แล้วจ้าา',
+        title: (
+          <h2>Congratulation! ติดสัมภาษณ์แล้วจ้าา</h2>
+        ),
         okText: 'close',
         width: 600,
         content: (
